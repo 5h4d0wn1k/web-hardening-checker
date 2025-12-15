@@ -46,26 +46,79 @@ python web_hardening_check.py --url https://example.com
 |--------|-------------|
 | `--url` | Target URL to check (required) |
 
+## Security Headers Checked
+
+1. **Strict-Transport-Security (HSTS)**: Enforces HTTPS connections
+2. **Content-Security-Policy (CSP)**: Prevents XSS attacks
+3. **X-Frame-Options**: Prevents clickjacking
+4. **X-Content-Type-Options**: Prevents MIME sniffing
+5. **Referrer-Policy**: Controls referrer information
+6. **Permissions-Policy**: Controls browser features
+
 ## Output Format
 
 ```json
 {
   "strict-transport-security": "missing",
-  "content-security-policy": "missing",
-  "x-frame-options": "present"
+  "content-security-policy": "present",
+  "x-frame-options": "missing",
+  "x-content-type-options": "missing/invalid",
+  "referrer-policy": "missing",
+  "permissions-policy": "missing"
 }
 
 Remediation tips:
 - strict-transport-security: Add HSTS (e.g., max-age=31536000; includeSubDomains; preload).
-- content-security-policy: Define a CSP to limit sources (default-src 'self'; ...).
+- x-frame-options: Set DENY or SAMEORIGIN to prevent clickjacking.
+- x-content-type-options: Set nosniff to prevent MIME sniffing.
+- referrer-policy: Set strict-origin-when-cross-origin (or stricter) to reduce referrer leakage.
+- permissions-policy: Restrict powerful features (camera=(), geolocation=(), etc.).
+```
+
+## Remediation Examples
+
+### 1. HSTS (Strict-Transport-Security)
+
+**Apache**:
+```apache
+Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+```
+
+**Nginx**:
+```nginx
+add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+```
+
+### 2. Content-Security-Policy
+
+**Apache**:
+```apache
+Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'"
+```
+
+**Nginx**:
+```nginx
+add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'" always;
+```
+
+### 3. X-Frame-Options
+
+**Apache**:
+```apache
+Header always set X-Frame-Options "DENY"
+```
+
+**Nginx**:
+```nginx
+add_header X-Frame-Options "DENY" always;
 ```
 
 ## Use Cases
 
-- **Security Audits**: Check web security configuration
+- **Security Audits**: Check security headers on your websites
 - **Hardening**: Implement web security best practices
-- **Penetration Testing**: Authorized security assessments
-- **Educational Purposes**: Learn about web security hardening
+- **Compliance**: Meet security compliance requirements
+- **Educational Purposes**: Learn about web security
 
 ## Legal Disclaimer
 
@@ -90,4 +143,4 @@ This project is for educational purposes only. Use responsibly and ethically.
 
 ---
 
-**Remember**: Always get explicit authorization before checking any website!
+**Remember**: Always implement web hardening recommendations on your websites!
