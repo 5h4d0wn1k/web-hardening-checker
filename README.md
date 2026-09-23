@@ -3,173 +3,57 @@
 > or hold explicit written authorization to assess**. Unauthorized use is
 > prohibited and may be illegal. Read [ETHICS.md](ETHICS.md) and
 > [SCOPE.md](SCOPE.md) before use. Use at your own risk; **AS IS**, no warranty.
+
 # Web Hardening Checker
 
-⚠️ **EDUCATIONAL PURPOSE ONLY** - This tool is designed for authorized security testing and educational purposes. Only use on websites you own or have explicit written authorization to test.
+Web security hardening checker with remediation guidance: runs an HTTP security-header scan and prints actionable fixes for the six most common missing headers.
 
-## Overview
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/5h4d0wn1k/web-hardening-checker.svg)](https://github.com/5h4d0wn1k/web-hardening-checker)
+[![Last commit](https://img.shields.io/github/last-commit/5h4d0wn1k/web-hardening-checker.svg)](https://github.com/5h4d0wn1k/web-hardening-checker)
+[![Issues](https://img.shields.io/github/issues/5h4d0wn1k/web-hardening-checker.svg)](https://github.com/5h4d0wn1k/web-hardening-checker)
 
-A comprehensive web security hardening checker that analyzes HTTP security headers and provides remediation recommendations. Combines security header analysis with actionable hardening guidance.
+## Why
+
+Most web breaches start as missing or misconfigured HTTP security headers. This tool checks a target URL against the baseline security-header set — HSTS, Content-Security-Policy, X-Frame-Options, X-Content-Type-Options, Referrer-Policy and Permissions-Policy — and pairs every gap with concrete remediation (Apache and Nginx config snippets). It turns a one-line command into a prioritized hardening checklist for sites you own or are authorized to test.
 
 ## Features
 
-- **Security Header Analysis**: Checks for common security headers
-- **Remediation Guidance**: Provides specific recommendations for missing headers
-- **HTTP Security Check**: Integrates with HTTP security checker
-- **Actionable Recommendations**: Clear steps to improve security
+- **Security-header scan** — checks 6 common headers on a target URL
+- **Remediation guidance** — concrete fix for every missing/invalid header (HSTS `max-age`/`includeSubDomains`/`preload`, CSP `default-src 'self'`, `X-Frame-Options DENY`, `nosniff`, and more)
+- **Web-server examples** — Apache and Nginx snippets for each recommendation
+- **Zero-setup CLI** — `python3 web_hardening_check.py --help` works out of the box
 
-## Installation
-
-### Requirements
-
-- Python 3.8+
-- Standard library only (no external dependencies!)
-
-### Setup
+## Quickstart
 
 ```bash
-# Clone the repository
-git clone https://github.com/5h4d0wn1k/web-hardening-checker.git
-cd web-hardening-checker
+# CLI reference
+python3 web_hardening_check.py --help
 
-# No installation needed!
-python web_hardening_check.py --help
+# Check a URL you own or are authorized to test
+python3 web_hardening_check.py --url https://example.com
 ```
 
-## Usage
+> **Note:** the scanner wraps a sibling `http_security_check.py` scanner (expects it at an `offensive/web/` location in a larger toolkit layout). If the sibling scanner is not present, the tool reports it and exits 1 instead of scanning. Run from a checkout where that dependency exists, or supply it yourself.
 
-### Basic Usage
+## Project structure
 
-```bash
-# Check web hardening
-python web_hardening_check.py --url https://example.com
-```
+- `web_hardening_check.py` — hardening wrapper + remediation tips
+- `CHANGELOG.md` — versioned changes; `VERSION` — current release (1.1.0)
+- `requirements.txt` — optional `requests` for enhanced scanning
 
-## Command-Line Options
+## Documentation
 
-| Option | Description |
-|--------|-------------|
-| `--url` | Target URL to check (required) |
-
-## Security Headers Checked
-
-1. **Strict-Transport-Security (HSTS)**: Enforces HTTPS connections
-2. **Content-Security-Policy (CSP)**: Prevents XSS attacks
-3. **X-Frame-Options**: Prevents clickjacking
-4. **X-Content-Type-Options**: Prevents MIME sniffing
-5. **Referrer-Policy**: Controls referrer information
-6. **Permissions-Policy**: Controls browser features
-
-## Output Format
-
-```json
-{
-  "strict-transport-security": "missing",
-  "content-security-policy": "present",
-  "x-frame-options": "missing",
-  "x-content-type-options": "missing/invalid",
-  "referrer-policy": "missing",
-  "permissions-policy": "missing"
-}
-
-Remediation tips:
-- strict-transport-security: Add HSTS (e.g., max-age=31536000; includeSubDomains; preload).
-- x-frame-options: Set DENY or SAMEORIGIN to prevent clickjacking.
-- x-content-type-options: Set nosniff to prevent MIME sniffing.
-- referrer-policy: Set strict-origin-when-cross-origin (or stricter) to reduce referrer leakage.
-- permissions-policy: Restrict powerful features (camera=(), geolocation=(), etc.).
-```
-
-## Remediation Examples
-
-### 1. HSTS (Strict-Transport-Security)
-
-**Apache**:
-```apache
-Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
-```
-
-**Nginx**:
-```nginx
-add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
-```
-
-### 2. Content-Security-Policy
-
-**Apache**:
-```apache
-Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'"
-```
-
-**Nginx**:
-```nginx
-add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'" always;
-```
-
-### 3. X-Frame-Options
-
-**Apache**:
-```apache
-Header always set X-Frame-Options "DENY"
-```
-
-**Nginx**:
-```nginx
-add_header X-Frame-Options "DENY" always;
-```
-
-## Use Cases
-
-- **Security Audits**: Check security headers on your websites
-- **Hardening**: Implement web security best practices
-- **Compliance**: Meet security compliance requirements
-- **Educational Purposes**: Learn about web security
+- [CHANGELOG.md](CHANGELOG.md) — version history
+- [ETHICS.md](ETHICS.md) — educational purpose and authorized use only
+- [SCOPE.md](SCOPE.md) — authorized-testing scope checklist
+- [SECURITY.md](SECURITY.md) — vulnerability reporting
+- [CONTRIBUTING.md](CONTRIBUTING.md) — safe contribution guidelines
 
 ## Contributing
 
-Contributions are welcome! Please:
+New header checks, remediation entries and automated tests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md); scan only sites you own or hold authorization for.
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
-
----
-
-## ⚠️ Legal Disclaimer
-
-### Educational Purpose Only
-This tool is provided strictly for **educational purposes** and **authorized security testing** only. It is intended to help security professionals and students learn about security concepts in controlled environments.
-
-### Authorized Use Only
-- You must have **explicit written authorization** before testing any system you do not own
-- Unauthorized access to computer systems is **illegal** and punishable under laws including but not limited to the Computer Fraud and Abuse Act (CFAA), Computer Misuse Act, and similar legislation worldwide
-- Only use this tool on systems you own, have permission to test, or in isolated lab environments
-
-### No Warranty
-This software is provided "AS IS" without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, and noninfringement. The author makes no representations or warranties regarding the accuracy, completeness, or reliability of this software.
-
-### Limitation of Liability
-**In no event shall the author (Nikhil Nagpure) be liable for any direct, indirect, incidental, special, exemplary, or consequential damages (including, but not limited to, procurement of substitute goods or services; loss of use, data, or profits; or business interruption) however caused and on any theory of liability, whether in contract, strict liability, or tort (including negligence or otherwise) arising in any way out of the use of this software, even if advised of the possibility of such damage.**
-
-### User Responsibility
-- The user assumes **full responsibility** for any consequences resulting from the use of this tool
-- The author is **not responsible** for any misuse, damage, or illegal activities performed with this software
-- Users are solely responsible for ensuring compliance with all applicable local, state, national, and international laws and regulations
-
-### Indemnification
-By using this software, you agree to **indemnify, defend, and hold harmless** the author from and against any and all claims, liabilities, damages, losses, costs, and expenses (including reasonable attorneys fees) arising from or related to your use of this software.
-
-### Responsible Disclosure
-If you discover vulnerabilities using this tool, please follow responsible disclosure practices and report them to the affected parties through appropriate channels.
-
----
-
-**By using this software, you acknowledge that you have read, understood, and agree to be bound by this disclaimer.**
 ## License
 
-This project is for educational purposes only. Use responsibly and ethically.
-
----
-
-**Remember**: Always implement web hardening recommendations on your websites!
+MIT — see [LICENSE](LICENSE). Provided **AS IS**, without warranty, for education and authorized security testing only.
